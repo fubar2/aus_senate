@@ -101,16 +101,18 @@ def reportDistances(df):
     report = []
     for i,s in enumerate(list(dft.index.values)):
         ss = s.split(',')
+        ns = dft.iloc[i][0]
         for j in range(i,(dft.shape[0]-1)):
             s2 = dft.index.values[j]
+            ns2 = dft.iloc[j][0]
             s2s = s2.split(',')
             diffs = [i for i,x in enumerate(ss) if (s2s[i] != x)]
             if len(diffs) == 1:
-               report.append('### Hamming=1 difference at position %d\n #%d = %s\n #%d = %s' % (diffs[0],i,s,j,s2))
+               report.append('### Hamming=1 difference at position %d\n #%d = %s (n=%d)\n #%d = %s (n=%d)' % (diffs[0],i,s,ns,j,s2,ns2))
             if len(diffs) == 2: # may be transposition between neighboring boxes?
                 p,q = diffs
                 if (abs(p - q) == 1 and ss[p] == s2s[q] and ss[q] == s2s[p]): # matching neighbors
-                    report.append('### Transposition of positions %d and %d\n #%d = %s\n #%d = %s' % (p,q,i,s,j,s2))
+                    report.append('### Transposition of positions %d and %d\n #%d = %s (n=%d)\n #%d = %s (n=%d)' % (p,q,i,s,ns,j,s2,ns2))
     return(report)
         
 
