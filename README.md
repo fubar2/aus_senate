@@ -57,5 +57,6 @@ TAS	13,744	339,159	4.05%
 
 Commonest NT pattern looks like the CLP ticket but the 6th looks like 518 people made a transcription error - the HTV does not show box C so some sheeple may have accidentally 
 preferenced the Citizens Electroral Council instead of the Greens - or else really preferred not to vote at all for the greens.
-Raises the question of whether counting a vote as "following" an HTV needs to take into account possible transcription errors - hard to do obviously....
+Raises the question of whether counting a vote as "following" an HTV needs to take into account possible transcription errors - hard to get into voters' heads but
+at least the data driven approach allows patterns like these to be exposed.
 

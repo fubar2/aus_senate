@@ -31,7 +31,6 @@ import numpy
 import pandas as pd
 import sklearn
 
-TESTING = False
 FDIR = '/home/ross/Downloads/aec-senate-formalpreferences-20499-'
 
 senateDtypes = {"ElectorateNm":object,"VoteCollectionPointNm":object,
@@ -40,9 +39,7 @@ senateDtypes = {"ElectorateNm":object,"VoteCollectionPointNm":object,
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
 
-inCSVs = ["~/Downloads/test.csv",] # "~/Downloads/aec-senate-formalpreferences-20499-TAS.csv",]
-if (not TESTING):
-    inCSVs = ["ACT.zip","TAS.zip","NT.zip"]
+inCSVs = ["ACT.zip","TAS.zip","NT.zip"]
 for fn in inCSVs:
     fpath = '%s%s' % (FDIR,fn)
     zfile = zipfile.ZipFile(fpath)
