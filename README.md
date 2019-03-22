@@ -3,11 +3,16 @@ HTV are at https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/
 Raw data are at https://results.aec.gov.au/20499/Website/SenateDownloadsMenu-20499-Csv.htm
 
 22 March
+
 Added detection of preference strings with hamming distance = 1 or where a simple transpostion explains the differences.
+
 Limit to top 20 - nShow in code
+
 These are interesting as they may be sheeple making errors rather than not following HTV cards?
+
 EG for NT we see that the top string is related to #8 and #16 by a single discordant box or a transposition between neighboring boxes
-Could group these counts and call then #0 for sensitivity - looks like the top HTV patterns will increase by a few hundred
+
+Could group these counts and call then #0 for sensitivity - looks like the top HTV patterns will increase by perhaps 10%
 
 ~~~~
 ### Transposition of positions 2 and 3
@@ -82,7 +87,7 @@ Preferences     Count
 0,3,5,1,4,2,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0     1284
 1,2,3,4,5,6,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0     678
 1,2,3,4,5,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0     538
-6,4,5,0,1,3,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0     518
+6,4,5,0,1,3,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0     517
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0     468
 0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0     363
 0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0     349
@@ -108,7 +113,7 @@ Original above found about 14k which is about the sum of the first 4 shown
 TAS 13,744  339,159 4.05%
 ~~~~
 
-Commonest NT pattern looks like the CLP ticket but the 6th looks like 518 people made a transcription error - the HTV does not show box C so some sheeple may have accidentally 
+Commonest NT pattern looks like the CLP ticket but the 6th looks like 517 people made a transcription error - the HTV does not show box C so some sheeple may have accidentally 
 preferenced the Citizens Electroral Council instead of the Greens - or else really preferred not to vote at all for the greens.
 Raises the question of whether counting a vote as "following" an HTV needs to take into account possible transcription errors - hard to get into voters' heads but
 at least the data driven approach allows patterns like these to be exposed.
