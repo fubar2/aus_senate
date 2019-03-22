@@ -6,6 +6,7 @@ without even looking at HTV.
 
 These are tabulated and the most common ones are likely to be HTV or donkey votes
 
+~~~~
 ross@ross-UX31A:~/rossdev/aus_senate$ head *.tab
 ==> ACT_table.tab <==
 Preferences     Count
@@ -43,7 +44,7 @@ Preferences     Count
 1,2,3,4,5,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0   213
 5,6,0,0,2,1,0,0,0,0,0,0,0,0,0,3,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0   138
 
-
+~~~~
 Tasmanian data used as a test give pretty promising results with preference string followed by count
 
 Original above found about 14k which is about the sum of the first 4 shown
