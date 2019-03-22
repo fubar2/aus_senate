@@ -82,37 +82,44 @@ senateDtypes = {"ElectorateNm":object,"VoteCollectionPointNm":object,
 pd.set_option('display.max_colwidth',256) # to prevent truncation
 pd.set_option('display.width', 256)
 
-inCSVs = ["NT.zip","TAS.zip","ACT.zip"]
+inCSVs = ["NT.zip","TAS.zip","ACT.zip","WA.zip","QLD.zip","SA.zip","VIC.zip","NSW.zip"]
 topTen = []
 sumName = 'top10_table.tab'
+errName = 'plausible_errors.txt'
 nShow = 20 # for hamming/transposition put to stdout during run
 
 try:
     os.remove(sumName)
 except:
     pass
-
-def reportDistances(df):
+try:
+    os.remove(errName)
+except:
+    pass
+    
+def reportDistances(df,datname):
     """
     check for prefs with only 1 edit needed (? meatsock error)
-    or where a transposition (also meatsock) will work 
+    or where a transposition (also meatsock) will work
+    Ballot paper did good service as a table cloth for this senate election as I recall
+    so errors could be expected....
     """
     dft = df.copy()
     report = []
     for i,s in enumerate(list(dft.index.values)):
         ss = s.split(',')
-        ns = dft.iloc[i][0]
+        ns = dft.iloc[i][0] # last index remove pandas series wrapper
         for j in range(i,(dft.shape[0]-1)):
             s2 = dft.index.values[j]
-            ns2 = dft.iloc[j][0]
+            ns2 = dft.iloc[j][0] # count
             s2s = s2.split(',')
             diffs = [i for i,x in enumerate(ss) if (s2s[i] != x)]
             if len(diffs) == 1:
-               report.append('### Hamming=1 difference at position %d\n #%d = %s (n=%d)\n #%d = %s (n=%d)' % (diffs[0],i,s,ns,j,s2,ns2))
+               report.append('### %s Hamming=1 difference at position %d\n #%d = %s (n=%d)\n #%d = %s (n=%d)' % (datname,diffs[0],i,s,ns,j,s2,ns2))
             if len(diffs) == 2: # may be transposition between neighboring boxes?
-                p,q = diffs
+                p,q = diffs # box zero based indices
                 if (abs(p - q) == 1 and ss[p] == s2s[q] and ss[q] == s2s[p]): # matching neighbors
-                    report.append('### Transposition of positions %d and %d\n #%d = %s (n=%d)\n #%d = %s (n=%d)' % (p,q,i,s,ns,j,s2,ns2))
+                    report.append('### %s Transposition of positions %d and %d\n #%d = %s (n=%d)\n #%d = %s (n=%d)' % (datname,p,q,i,s,ns,j,s2,ns2))
     return(report)
         
 
@@ -124,7 +131,6 @@ for fnum,fn in enumerate(inCSVs):
     dat = pd.read_csv(ifile, quotechar='"',dtype=senateDtypes,comment='-')
     datnames=fn.split('-')[-1] # last part
     datname = datnames.split('.zip')[0]
-    #print('Processing state=',datname)
     sp = dat['Preferences'].copy()
     sps = sp.copy()
     for i in range(len(sp)):
@@ -146,11 +152,15 @@ for fnum,fn in enumerate(inCSVs):
     vc.columns = ["Count"]
     vchead = vc.head(n=nShow)
     vchead.to_csv(sumName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
-    rep = reportDistances(vchead)
+    rep = reportDistances(vchead,datname)
     if len(rep) > 0:
         print('\n'.join(rep))
+        f = open(errName,'a')
+        f.write('\n'.join(rep))
+        f.write('\n')
+        f.close()
     else:
-        print('No hamming distance = 1 pairs found\n')
+        print('No hamming distance = 1 or transposed pairs found\n')
 
     vc['State'] = datname
     outfname = '%s_table.tab' % datname

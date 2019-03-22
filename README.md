@@ -4,9 +4,10 @@ Raw data are at https://results.aec.gov.au/20499/Website/SenateDownloadsMenu-204
 
 22 March
 
-Added detection of preference strings with hamming distance = 1 or where a simple transpostion explains the differences.
+Added detection of preference strings with hamming distance = 1 or where a simple transpostion accounts for
+differences between the most common strings taken pairwise.
 
-Limit to top 20 - nShow in code
+Limit to top 20 - nShow constant in code
 
 These are interesting as they may be sheeple making errors rather than not following HTV cards?
 
@@ -63,6 +64,7 @@ NT
 7,3,6,2,5,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0    188    NT
 ~~~~
 
+21 March
 
 Very simple data driven approach to parse out all voting preference allocation patterns
 without even looking at HTV. 
