@@ -1,4 +1,6 @@
 Inspired by https://github.com/tmccarthy/ausvotes
+HTV are at https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/
+Raw data are at https://results.aec.gov.au/20499/Website/SenateDownloadsMenu-20499-Csv.htm
 
 
 Very simple data driven approach to parse out all voting preference allocation patterns
