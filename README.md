@@ -12,7 +12,8 @@ These are interesting as they may be sheeple making errors rather than not follo
 
 EG for NT we see that the top string is related to #5, #8 and #16 by a single discordant box or a transposition between neighboring boxes
 
-Could group these counts and call then #0 for sensitivity - looks like the top HTV patterns will increase by perhaps 10%
+Could group these counts and add their counts to the commonest one for a sensitivity analysis on human error - ballots can be
+fearful data entry forms - looks like the top HTV patterns will increase by perhaps 10%
 
 **The CLP HTV count could probably be >10% higher - 6208 + 517 + 346 if #5 and #8 are accepted as plausible human error?**
 
