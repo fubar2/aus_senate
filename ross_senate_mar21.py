@@ -48,7 +48,7 @@ for fn in inCSVs:
     dat = pd.read_csv(ifile, quotechar='"',dtype=senateDtypes,comment='-')
     datnames=fn.split('-')[-1] # last part
     datname = datnames.split('.zip')[0]
-    print('State=',datname)
+    print('Processing state=',datname)
     sp = dat['Preferences'].copy()
     sps = sp.copy()
     for i in range(len(sp)):
@@ -59,7 +59,8 @@ for fn in inCSVs:
             else:
                 s[j] = int(s[j])
         sp[i] = s
-        sps[i] = ','.join(['%d' % x for x in s]) # a big string - how many are identical -> use value_counts for table
+        sps[i] = ','.join(['%d' % x for x in s])
+        # a big string - how many are identical -> use value_counts for table
     dat['pref'] = sp
     dat['spref'] = sps
     sdat = dat.drop(columns=['Preferences'])
