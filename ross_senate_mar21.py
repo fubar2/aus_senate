@@ -26,11 +26,14 @@ for tasmania we get
 
 import csv
 import string
+import zipfile
 import numpy
 import pandas as pd
 import sklearn
 
 TESTING = False
+FDIR = '/home/ross/Downloads/aec-senate-formalpreferences-20499-'
+
 senateDtypes = {"ElectorateNm":object,"VoteCollectionPointNm":object,
     "VoteCollectionPointId":int,"BatchNo":int,"PaperNo":int,"Preferences":object}
     
@@ -39,9 +42,16 @@ pd.set_option('display.max_rows', None)
 
 inCSVs = ["~/Downloads/test.csv",] # "~/Downloads/aec-senate-formalpreferences-20499-TAS.csv",]
 if (not TESTING):
-    inCSVs = ["~/Downloads/aec-senate-formalpreferences-20499-TAS.csv",]
-for fpath in inCSVs:
-    dat = pd.read_csv(fpath, quotechar='"',dtype=senateDtypes)
+    inCSVs = ["ACT.zip","TAS.zip","NT.zip"]
+for fn in inCSVs:
+    fpath = '%s%s' % (FDIR,fn)
+    zfile = zipfile.ZipFile(fpath)
+    finfo = zfile.infolist()[0] # assume only one!
+    ifile = zfile.open(finfo)
+    dat = pd.read_csv(ifile, quotechar='"',dtype=senateDtypes,comment='-')
+    datnames=fn.split('-')[-1] # last part
+    datname = datnames.split('.zip')[0]
+    print('State=',datname)
     sp = dat['Preferences'].copy()
     sps = sp.copy()
     for i in range(len(sp)):
@@ -56,6 +66,8 @@ for fpath in inCSVs:
     dat['pref'] = sp
     dat['spref'] = sps
     sdat = dat.drop(columns=['Preferences'])
-    # print(sdat.head())
-    vc = sdat['spref'].value_counts()
-    print(vc)
+    vc = sdat['spref'].value_counts().to_frame()
+    vc.columns = ["Count"]
+    outfname = '%s_table.tab' % datname
+    vc.to_csv(outfname,sep='\t',index_label='Preferences')
+
