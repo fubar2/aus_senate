@@ -175,7 +175,6 @@ for fnum,fn in enumerate(inCSVs):
     vc = sdat['spref'].value_counts().to_frame()
     vc.columns = ["Count"]
     vchead = vc.head(n=nShow)
-    vchead.to_csv(sumName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
     rep = reportDistances(vchead,datname)
     if len(rep) > 0:
         print('\n'.join(rep))
@@ -185,8 +184,11 @@ for fnum,fn in enumerate(inCSVs):
         f.close()
     else:
         print('No hamming distance = 1 or transposed pairs found\n')
+    vchead['State'] = datname
+    vchead.to_csv(sumName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
+
     # these are huge - not very useful
     # vc['State'] = datname
     # outfname = '%s_table.tab' % datname
     # vc.to_csv(outfname,sep='\t',index_label='Preferences')
-    print(datname,'\n',vc.head(n=nShow))
+    print(vchead)
