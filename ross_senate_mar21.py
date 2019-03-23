@@ -1,10 +1,22 @@
 # inspired by https://github.com/tmccarthy/ausvotes
+# ross lazarus me fecit 21 march 2018
+#
+# march 23 Vote early, vote often
+#   WA has wierd data in csv - chasing down is painful...
+#   Aha. One division name has comment char "-" in it set to deal with the stupid 2nd row
+#   of dashes - changed to skiprows=[1,] in read_csv - now seems to work
+#
+# march 22
+#
 # Added detection of preference strings with hamming distance = 1 or where a simple transpostion explains the differences.
 # Limit to top 20 - nShow in code
 # These are interesting as they may be sheeple making errors rather than not following HTV cards?
 # EG for NT we see that the top string is related to #8 and #16 by a single discordant box or a transposition between neighboring boxes
-# Could group these counts and call then #0 for sensitivity - looks like the top HTV patterns will increase by 10% or more
-
+# Could group these counts and call them #0 for sensitivity analysis.
+# Top HTV patterns will increase by 10% or more if we do that
+#
+# march 21
+#
 # fields in data are
 # ElectorateNm  VoteCollectionPointNm   VoteCollectionPointId   BatchNo PaperNo Preferences
 # Preferences are a string of integers - so try simple converting into a string to see how
@@ -64,6 +76,9 @@ NT
 
 ..
 
+senateDtypes = {"ElectorateNm":object,"VoteCollectionPointNm":object,
+    "VoteCollectionPointId":int,"BatchNo":int,"PaperNo":int,"Preferences":object}
+  
 """
 
 import os
@@ -75,14 +90,11 @@ import pandas as pd
 import sklearn
 
 FDIR = '/home/ross/Downloads/aec-senate-formalpreferences-20499-'
-
-senateDtypes = {"ElectorateNm":object,"VoteCollectionPointNm":object,
-    "VoteCollectionPointId":int,"BatchNo":int,"PaperNo":int,"Preferences":object}
-    
+  
 pd.set_option('display.max_colwidth',256) # to prevent truncation
 pd.set_option('display.width', 256)
 
-inCSVs = ["NT.zip","TAS.zip","ACT.zip","WA.zip","QLD.zip","SA.zip","VIC.zip","NSW.zip"]
+inCSVs = ["WA.zip","NT.zip","TAS.zip","ACT.zip","QLD.zip","SA.zip","VIC.zip","NSW.zip"]
 topTen = []
 sumName = 'top10_table.tab'
 errName = 'plausible_errors.txt'
@@ -103,12 +115,16 @@ def reportDistances(df,datname):
     or where a transposition (also meatsock) will work
     Ballot paper did good service as a table cloth for this senate election as I recall
     so errors could be expected....
+    Record indices of differences. If only one, hamming = 1. If two check for transposition between
+    adjacent boxes
+    todo: ? check that preference 1 does not change - assume that distracted voters get
+    that right when they make some other less important error.
     """
     dft = df.copy()
     report = []
     for i,s in enumerate(list(dft.index.values)):
         ss = s.split(',')
-        ns = dft.iloc[i][0] # last index remove pandas series wrapper
+        ns = dft.iloc[i][0]    # use that index 0 to remove pandas series wrapper
         for j in range(i,(dft.shape[0]-1)):
             s2 = dft.index.values[j]
             ns2 = dft.iloc[j][0] # count
@@ -117,7 +133,7 @@ def reportDistances(df,datname):
             if len(diffs) == 1:
                report.append('### %s Hamming=1 difference at position %d\n #%d = %s (n=%d)\n #%d = %s (n=%d)' % (datname,diffs[0],i,s,ns,j,s2,ns2))
             if len(diffs) == 2: # may be transposition between neighboring boxes?
-                p,q = diffs # box zero based indices
+                p,q = diffs     # box zero based indices
                 if (abs(p - q) == 1 and ss[p] == s2s[q] and ss[q] == s2s[p]): # matching neighbors
                     report.append('### %s Transposition of positions %d and %d\n #%d = %s (n=%d)\n #%d = %s (n=%d)' % (datname,p,q,i,s,ns,j,s2,ns2))
     return(report)
@@ -128,25 +144,30 @@ for fnum,fn in enumerate(inCSVs):
     zfile = zipfile.ZipFile(fpath)
     finfo = zfile.infolist()[0] # assume only one!
     ifile = zfile.open(finfo)
-    dat = pd.read_csv(ifile, quotechar='"',dtype=senateDtypes,comment='-')
+    dat = pd.read_csv(ifile, quotechar='"',skiprows=[1,])
     datnames=fn.split('-')[-1] # last part
     datname = datnames.split('.zip')[0]
     sp = dat['Preferences'].copy()
-    sps = sp.copy()
     for i in range(len(sp)):
-        s = sp[i].split(',').copy()
+        try:
+            s = sp[i].split(',')
+        except:
+            print('!!! bad data at row',i,'=',s,' Ignored')
+            continue
         for j in range(len(s)):
             if s[j] == "":
                 s[j] = 0
-            elif s[j] == "/" or s[j] == '*': # Tim McCarthy reported that AEC says solo tick or cross == 1
+            elif s[j] == "/" or s[j] == '*':
+                # Tim McCarthy reported that AEC says solo tick or cross == 1
                 s[j] = 1
             else:
                 s[j] = int(s[j])
-        sp[i] = s
-        sps[i] = ','.join(['%d' % x for x in s])
+        try: # WA file has bogus data somewhere
+            sp[i] = ','.join(['%d' % x for x in s])
+        except:
+            print('!!! bad data at row',i,'=',s)
         # a big string - how many are identical -> use value_counts for table
-    dat['pref'] = sp
-    dat['spref'] = sps
+    dat['spref'] = sp
     sdat = dat.drop(columns=['Preferences'])
     vc = sdat['spref'].value_counts().to_frame()
     vc.columns = ["Count"]
@@ -161,8 +182,8 @@ for fnum,fn in enumerate(inCSVs):
         f.close()
     else:
         print('No hamming distance = 1 or transposed pairs found\n')
-
-    vc['State'] = datname
-    outfname = '%s_table.tab' % datname
-    vc.to_csv(outfname,sep='\t',index_label='Preferences')
+    # these are huge - not very useful
+    # vc['State'] = datname
+    # outfname = '%s_table.tab' % datname
+    # vc.to_csv(outfname,sep='\t',index_label='Preferences')
     print(datname,'\n',vc.head(n=nShow))

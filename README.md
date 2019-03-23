@@ -2,6 +2,11 @@ Inspired by https://github.com/tmccarthy/ausvotes
 HTV are at https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/
 Raw data are at https://results.aec.gov.au/20499/Website/SenateDownloadsMenu-20499-Csv.htm
 
+23 March
+
+WA data has a division name with a "-" in it and I'd chosen that as the comment character for
+pd.read_csv. Replaced that with skiprows=[1,] to drop that stupid second header row of dashes.
+
 22 March
 
 Added detection of preference strings with hamming distance = 1 or where a simple transpostion accounts for
@@ -16,7 +21,8 @@ EG for NT we see that the top string is related to #5, #8 and #16 by a single di
 Could group these counts and add their counts to the commonest one for a sensitivity analysis on human error - ballots can be
 fearful data entry forms - looks like the top HTV patterns will increase by perhaps 10%
 
-**The CLP HTV count could probably be >10% higher - 6208 + 517 + 346 if #5 and #8 are accepted as plausible human error?**
+**The CLP HTV count could probably be >10% higher becoming (6208 + 517 + 346)
+if #5 and #8 are accepted as #0 with a single plausible human error?**
 
 ~~~~
 ### Transposition of positions 2 and 3
