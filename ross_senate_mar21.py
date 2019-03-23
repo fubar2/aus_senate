@@ -120,6 +120,7 @@ def reportDistances(df,datname):
     adjacent boxes
     todo: ? check that preference 1 does not change - assume that distracted voters get
     that right when they make some other less important error.
+    NO vote changing transitions found in top 20 - that's good. 
     """
     dft = df.copy()
     report = []
