@@ -7,6 +7,8 @@ Raw data are at https://results.aec.gov.au/20499/Website/SenateDownloadsMenu-204
 WA data has a division name with a "-" in it and I'd chosen that as the comment character for
 pd.read_csv. Replaced that with skiprows=[1,] to drop that stupid second header row of dashes.
 
+todo: test if a transposition involves a first preference - that is not an ignorable error?
+
 22 March
 
 Added detection of preference strings with hamming distance = 1 or where a simple transpostion accounts for

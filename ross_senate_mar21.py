@@ -5,6 +5,7 @@
 #   WA has wierd data in csv - chasing down is painful...
 #   Aha. One division name has comment char "-" in it set to deal with the stupid 2nd row
 #   of dashes - changed to skiprows=[1,] in read_csv - now seems to work
+#   Flag possible transcription errors where primary vote was involved - too horrible to class as a meatsock error?
 #
 # march 22
 #
@@ -136,6 +137,8 @@ def reportDistances(df,datname):
                 p,q = diffs     # box zero based indices
                 if (abs(p - q) == 1 and ss[p] == s2s[q] and ss[q] == s2s[p]): # matching neighbors
                     report.append('### %s Transposition of positions %d and %d\n #%d = %s (n=%d)\n #%d = %s (n=%d)' % (datname,p,q,i,s,ns,j,s2,ns2))
+                    if (1 in [ss[p],ss[q],s2s[p],s2s[q]]):
+                        report.append('!!! %s ABOVE TRANSPOSITION MAY BE AN ERROR - primary vote changed')
     return(report)
         
 
