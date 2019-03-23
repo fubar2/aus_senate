@@ -1,6 +1,14 @@
-Inspired by https://github.com/tmccarthy/ausvotes
+
+**Very simple data driven approach** to parse out all *voting preference allocation patterns* in a
+file of preference allocations for valid votes without even looking at HTV. Numbers in boxes
+are treated as comma separated strings so commonest ones can be identified and counted.
+These are tabulated and the most common ones are likely to be HTV or donkey votes.
+
 HTV are at https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/
 Raw data are at https://results.aec.gov.au/20499/Website/SenateDownloadsMenu-20499-Csv.htm
+
+Inspired by https://github.com/tmccarthy/ausvotes
+
 
 23 March
 
@@ -74,11 +82,6 @@ NT
 ~~~~
 
 21 March
-
-Very simple data driven approach to parse out all voting preference allocation patterns
-without even looking at HTV. 
-
-These are tabulated and the most common ones are likely to be HTV or donkey votes
 
 ~~~~
 ross@ross-UX31A:~/rossdev/aus_senate$ head *.tab
