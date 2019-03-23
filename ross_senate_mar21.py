@@ -75,20 +75,15 @@ NT
 5,0,4,3,1,2,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0    194    NT
 7,3,6,2,5,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0    188    NT
 
-..
-
-senateDtypes = {"ElectorateNm":object,"VoteCollectionPointNm":object,
-    "VoteCollectionPointId":int,"BatchNo":int,"PaperNo":int,"Preferences":object}
+.....
   
 """
 
 import os
 import csv
 import string
-import zipfile
-import numpy
 import pandas as pd
-import sklearn
+
 
 FDIR = '/home/ross/Downloads/aec-senate-formalpreferences-20499-'
   
@@ -145,10 +140,10 @@ def reportDistances(df,datname):
 
 for fnum,fn in enumerate(inCSVs):
     fpath = '%s%s' % (FDIR,fn)
-    zfile = zipfile.ZipFile(fpath)
-    finfo = zfile.infolist()[0] # assume only one!
-    ifile = zfile.open(finfo)
-    dat = pd.read_csv(ifile, quotechar='"',skiprows=[1,])
+    # zfile = zipfile.ZipFile(fpath)
+    # finfo = zfile.infolist()[0] # assume only one!
+    # ifile = zfile.open(finfo)
+    dat = pd.read_csv(fpath, quotechar='"',skiprows=[1,],compression='infer')
     datnames=fn.split('-')[-1] # last part
     datname = datnames.split('.zip')[0]
     sp = dat['Preferences'].copy()
