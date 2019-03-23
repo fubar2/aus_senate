@@ -133,7 +133,7 @@ def reportDistances(df,datname):
     
     todo: ? check that preference 1 does not change - assume that distracted voters get
     that right when they make some other less important error.
-    NO vote changing transitions found in top 20 - that's good. 
+    Several vote changing transitions found in top 20 in some states so they do happen
     """
     dft = df.copy()
     report = []
@@ -155,7 +155,7 @@ def reportDistances(df,datname):
                 if (abs(p - q) == 1 and ss[p] == s2s[q] and ss[q] == s2s[p]): # matching neighbors
                     mergeUs = True
                     report.append('### %s Transposition of positions %d and %d\n #%d = %s (n=%d)\n #%d = %s (n=%d)' % (datname,p,q,i,s,ns,j,s2,ns2))
-                    if (ss[p] == 1 or ss[q] == 1):
+                    if (ss[p] == '1' or ss[q] == '1'):
                         report.append('!!! %s ABOVE TRANSPOSITION likely a REAL DIFFERENCE - primary vote changed - NOT merged')
                         mergeUs = False
             if mergeUs: # hypothetical merge of commonest preference patterns where possible simian error
