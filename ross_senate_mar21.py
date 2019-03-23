@@ -140,9 +140,6 @@ def reportDistances(df,datname):
 
 for fnum,fn in enumerate(inCSVs):
     fpath = '%s%s' % (FDIR,fn)
-    # zfile = zipfile.ZipFile(fpath)
-    # finfo = zfile.infolist()[0] # assume only one!
-    # ifile = zfile.open(finfo)
     dat = pd.read_csv(fpath, quotechar='"',skiprows=[1,],compression='infer')
     datnames=fn.split('-')[-1] # last part
     datname = datnames.split('.zip')[0]
@@ -182,9 +179,4 @@ for fnum,fn in enumerate(inCSVs):
         print('No hamming distance = 1 or transposed pairs found\n')
     vchead['State'] = datname
     vchead.to_csv(sumName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
-
-    # these are huge - not very useful
-    # vc['State'] = datname
-    # outfname = '%s_table.tab' % datname
-    # vc.to_csv(outfname,sep='\t',index_label='Preferences')
     print(vchead)
