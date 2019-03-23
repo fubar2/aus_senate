@@ -8,6 +8,7 @@ WA data has a division name with a "-" in it and I'd chosen that as the comment 
 pd.read_csv. Replaced that with skiprows=[1,] to drop that stupid second header row of dashes.
 
 todo: test if a transposition involves a first preference - that is not an ignorable error?
+done: TURNS OUT they do not - none found in top 20 voting patterns in any state.
 
 22 March
 
