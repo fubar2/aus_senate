@@ -4,10 +4,11 @@ file of preference allocations for valid votes without even looking at HTV. Numb
 are treated as comma separated strings so commonest ones can be identified and counted.
 These are tabulated and the most common ones are likely to be HTV or donkey votes.
 
-HTV are at https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/
-Raw data are at https://results.aec.gov.au/20499/Website/SenateDownloadsMenu-20499-Csv.htm
+*HTV* are at https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/
 
-Inspired by https://github.com/tmccarthy/ausvotes
+*Raw data* are at https://results.aec.gov.au/20499/Website/SenateDownloadsMenu-20499-Csv.htm
+
+*Inspired by* https://github.com/tmccarthy/ausvotes
 
 
 23 March
