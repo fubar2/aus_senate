@@ -102,11 +102,13 @@ import os
 import csv
 import string
 import pandas as pd
+import weasyprint
 
 QUICK = False
 
 FDIR = '/home/ross/Downloads/aec-senate-formalpreferences-20499-'
-META = '2016 Australian senate preference data processed using code at https://github.com/fubar2/aus_senate' 
+META = '2016 Australian senate preference data processed using code at https://github.com/fubar2/aus_senate'
+STYL = '<style>@page: {size: "36 in 36 in";}</style>'
 pd.set_option('display.max_colwidth',256) # to prevent truncation
 pd.set_option('display.width', 256)
 
@@ -117,12 +119,16 @@ if QUICK:
     inCSVs = ["NT.zip","ACT.zip"]
 topTen = []
 sumName = 'top%d_table.tab' % (nShow-1)
-sumFiddledName = 'Fiddled_top%d_table.tab' % (nShow-1)
+sumFiddledName = 'amalgamated_top%d_table.tab' % (nShow-1)
 errName = 'plausible_errors.txt'
 htmlName = 'index.html'
 
 try:
     os.remove(sumName)
+except:
+    pass
+try:
+    os.remove(sumFiddledName)
 except:
     pass
 try:
@@ -143,6 +149,25 @@ for i in range(20):
 def makeTable(df,state):
     """ split into letter headed boxes table
     """
+    th_props = [
+      ('font-size', '15px'),
+      ('text-align', 'center'),
+      ('font-weight', 'bold'),
+      ('color', '#6d6d6d'),
+      ('background-color', '#f7f7f9')
+      ]
+
+    # Set CSS properties for td elements in dataframe
+    td_props = [
+      ('font-size', '12px')
+      ]
+
+    # Set table styles
+    styles = [
+      dict(selector="th", props=th_props),
+      dict(selector="td", props=td_props)
+      ]
+
     df2 = pd.DataFrame()
     prefs = [x.split(',') for x in list(df.index.values)]
     counts = list(df['Count'])
@@ -158,6 +183,7 @@ def makeTable(df,state):
     df2 = pd.DataFrame(datdic)
     newi = list(range(1,nr))
     df2 = df2.reindex(newi)
+    (df2.style.set_table_styles(styles))
     h2 = df2.to_html()
     h = ''.join(h2)
     return (h)
@@ -216,7 +242,7 @@ def reportDistances(df,datname):
     return(report,dft)
         
 
-htmlrep = '<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8"><meta info="%s"></head><body>\n' % META
+htmlrep = '''<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8"><meta info="%s">%s</head><body>\n''' % (META,STYL)
 htmlrep += '<br>\n'.join(rationale.split('\n'))
 htmlrep += '''<br><b>Below are the top 20 preference choice patterns<br>before and after amalgamation of patterns<br>
 differing only by one box's value or a simple transposition between neighboring boxes not involving the primary vote:</b><br>\n'''
@@ -281,3 +307,7 @@ htmlrep += '%s<br></body></html>\n' % META
 rep = open(htmlName,'w')
 rep.write(htmlrep)
 rep.close()
+# Convert the html file to a pdf file using weasyprint
+out_pdf= 'common_ballots_senate_2016.pdf'
+weasyprint.HTML(htmlName).write_pdf(out_pdf)
+
