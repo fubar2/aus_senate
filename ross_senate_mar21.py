@@ -104,7 +104,7 @@ import pandas as pd
 
 QUICK = False
 FDIR = '/home/ross/Downloads/aec-senate-formalpreferences-20499-'
-  
+META = '2016 Australian senate preference data processed using code at https://github.com/fubar2/aus_senate' 
 pd.set_option('display.max_colwidth',256) # to prevent truncation
 pd.set_option('display.width', 256)
 
@@ -214,7 +214,7 @@ def reportDistances(df,datname):
     return(report,dft)
         
 
-htmlrep = '<!DOCTYPE html>\n<html lang="en"><head></head><body>\n'
+htmlrep = '<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8"><meta info="%s"></head><body>\n' % META
 htmlrep += '<br>\n'.join(rationale.split('\n'))
 htmlrep += '''<br><b>Below are the top 20 preference choice patterns<br>before and after amalgamation of patterns<br>
 differing only by one box's value or a simple transposition between neighboring boxes not involving the primary vote:</b><br>\n'''
@@ -270,7 +270,7 @@ for fnum,fn in enumerate(inCSVs):
     vcht.to_csv(sumFiddledName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
     print('### After amalgamating likely error categories:')
     print(vcht)
-htmlrep += '</body></html>\n'
+htmlrep += '%s<br></body></html>\n' % META
 rep = open(htmlName,'w')
 rep.write(htmlrep)
 rep.close()
