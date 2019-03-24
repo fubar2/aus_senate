@@ -1,8 +1,9 @@
-rationale = """Inspired by https://github.com/tmccarthy/ausvotes
+rationale = """Inspired by <a href="https://github.com/tmccarthy/ausvotes">https://github.com/tmccarthy/ausvotes</a>
 ross lazarus me fecit 21 march 2018
-Requires about 5GB ram and 26 minutes to run on my ancient server
+Requires about 5GB ram and 26 minutes to run over all the data on my ancient server
 Code at <a href="https://github.com/fubar2/aus_senate">https://github.com/fubar2/aus_senate</a>
 Comments and contributions welcomed there
+How to votes at <a href="https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/">https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/</a>
 """
 #
 # History:
@@ -103,6 +104,7 @@ import string
 import pandas as pd
 
 QUICK = False
+
 FDIR = '/home/ross/Downloads/aec-senate-formalpreferences-20499-'
 META = '2016 Australian senate preference data processed using code at https://github.com/fubar2/aus_senate' 
 pd.set_option('display.max_colwidth',256) # to prevent truncation
@@ -260,16 +262,21 @@ for fnum,fn in enumerate(inCSVs):
     else:
         print('No hamming distance = 1 or transposed pairs found\n')
     vchead['State'] = datname
-    htmlrep += '<H1>%s</h1>\n' % ('Top %d counts' % (nShow-1))
+    htmlrep += '<H1>%s</h1><br>\n' % ('Top %d counts' % (nShow-1))
+    htvlink = 'https://www.abc.net.au/news/federal-election-2016/guide/s%s/htv/' % datname.lower()
+    htmlrep += '<a href="%s" target="_blank">How to vote cards - click here</a><br>' % htvlink
     htmlrep += makeTable(vchead,datname)
     vchead.to_csv(sumName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
     print(vchead)
     vcht['State'] = datname
-    htmlrep += '<H1>%s</h1>\n' % ('Amalgamated counts after ignoring small errors')
-    htmlrep += makeTable(vcht,datname)
-    vcht.to_csv(sumFiddledName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
-    print('### After amalgamating likely error categories:')
-    print(vcht)
+    if vcht.shape[0] < vchead.shape[0]:
+        htmlrep += '<H1>%s</h1>\n' % ('Amalgamated counts after ignoring small errors')
+        htmlrep += makeTable(vcht,datname)
+        vcht.to_csv(sumFiddledName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
+        print('### After amalgamating likely error categories:')
+        print(vcht)
+    else:
+        htmlrep += '<H1>%s</h1>\n' % ('### No simple errors to amalgamate were found')
 htmlrep += '%s<br></body></html>\n' % META
 rep = open(htmlName,'w')
 rep.write(htmlrep)
