@@ -1,5 +1,11 @@
-# inspired by https://github.com/tmccarthy/ausvotes
-# ross lazarus me fecit 21 march 2018
+rationale = """Inspired by https://github.com/tmccarthy/ausvotes
+ross lazarus me fecit 21 march 2018
+Requires about 5GB ram and 26 minutes to run on my ancient server
+Code at <a href="https://github.com/fubar2/aus_senate">https://github.com/fubar2/aus_senate</a>
+Comments and contributions welcomed there
+"""
+#
+# History:
 #
 # march 24
 #   added index.html report summary of top counts before and after amalgamation of errors
@@ -19,7 +25,7 @@
 # Could group these counts and call them #0 for sensitivity analysis.
 # Top HTV patterns will increase by 10% or more if we do that
 #
-# march 21
+# march 21 - started project
 #
 # fields in data are
 # ElectorateNm  VoteCollectionPointNm   VoteCollectionPointId   BatchNo PaperNo Preferences
@@ -29,8 +35,8 @@
 #  ElectorateNm,VoteCollectionPointNm,VoteCollectionPointId,BatchNo,PaperNo,Preferences
 #  Bass,Branxholm,1,1,1,",,,,,,,,,,,,,,,,,,,,,21,22,45,44,43,42,41,40,52,53,54,7,8,55,56,2,5,4,3,1,6,49,50,51,23,24....
 #
-# current output sample
-"""
+
+outputsample = """
 ### NT Transposition of positions 2 and 3
  #0 = 6,4,0,5,1,3,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 (n=6208)
  #5 = 6,4,5,0,1,3,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 (n=517)
@@ -96,7 +102,7 @@ import csv
 import string
 import pandas as pd
 
-
+QUICK = False
 FDIR = '/home/ross/Downloads/aec-senate-formalpreferences-20499-'
   
 pd.set_option('display.max_colwidth',256) # to prevent truncation
@@ -105,6 +111,8 @@ pd.set_option('display.width', 256)
 
 nShow = 21 # includes header
 inCSVs = ["NT.zip","ACT.zip","TAS.zip","WA.zip","QLD.zip","SA.zip","VIC.zip","NSW.zip"]
+if QUICK:
+    inCSVs = ["NT.zip","ACT.zip"]
 topTen = []
 sumName = 'top%d_table.tab' % (nShow-1)
 sumFiddledName = 'Fiddled_top%d_table.tab' % (nShow-1)
@@ -136,7 +144,8 @@ def makeTable(df,state):
     df2 = pd.DataFrame()
     prefs = [x.split(',') for x in list(df.index.values)]
     counts = list(df['Count'])
-    nr,nc = df.shape
+    nr = df.shape[0]
+    nc = len(prefs[0])
     sl = [state]*nr
     datdic = {'State':sl}
     bl = boxlabs[:nc]
@@ -206,6 +215,9 @@ def reportDistances(df,datname):
         
 
 htmlrep = '<!DOCTYPE html>\n<html lang="en"><head></head><body>\n'
+htmlrep += '<br>\n'.join(rationale.split('\n'))
+htmlrep += '''<br><b>Below are the top 20 preference choice patterns<br>before and after amalgamation of patterns<br>
+differing only by one box's value or a simple transposition between neighboring boxes not involving the primary vote:</b><br>\n'''
 for fnum,fn in enumerate(inCSVs):
     fpath = '%s%s' % (FDIR,fn)
     dat = pd.read_csv(fpath, quotechar='"',skiprows=[1,],compression='infer')

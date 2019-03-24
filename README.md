@@ -4,6 +4,9 @@ file of preference allocations for valid votes without even looking at HTV. Numb
 are treated as comma separated strings so commonest ones can be identified and counted.
 These are tabulated and the most common ones are likely to be HTV or donkey votes.
 
+*uses pandas* and processing ~14 million votes as zip files directly takes about 25 minutes and 5GB ram
+on my ancient home linux server. I have no need to make it go faster...send code.
+
 *HTV* are at https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/
 
 *Raw data* are at https://results.aec.gov.au/20499/Website/SenateDownloadsMenu-20499-Csv.htm
