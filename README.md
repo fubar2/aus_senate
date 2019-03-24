@@ -10,9 +10,11 @@ These are tabulated and the most common ones are likely to be HTV or donkey vote
 
 *Inspired by* https://github.com/tmccarthy/ausvotes
 
+24 March
+Useable HTML report generator
+
 
 23 March
-
 WA data has a division name with a "-" in it and I'd chosen that as the comment character for
 pd.read_csv. Replaced that with skiprows=[1,] to drop that stupid second header row of dashes.
 
@@ -20,7 +22,6 @@ todo: test if a transposition involves a first preference - that is not an ignor
 done: TURNS OUT they do not - none found in top 20 voting patterns in any state.
 
 22 March
-
 Added detection of preference strings with hamming distance = 1 or where a simple transpostion accounts for
 differences between the most common strings taken pairwise.
 

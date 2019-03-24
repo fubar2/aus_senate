@@ -1,6 +1,9 @@
 # inspired by https://github.com/tmccarthy/ausvotes
 # ross lazarus me fecit 21 march 2018
 #
+# march 24
+#   added index.html report summary of top counts before and after amalgamation of errors
+#
 # march 23 Vote early, vote often
 #   WA has wierd data in csv - chasing down is painful...
 #   Aha. One division name has comment char "-" in it set to deal with the stupid 2nd row
@@ -100,12 +103,13 @@ pd.set_option('display.max_colwidth',256) # to prevent truncation
 pd.set_option('display.width', 256)
 
 
-nShow = 20 # for hamming/transposition put to stdout during run
-inCSVs = ["NT.zip","TAS.zip","ACT.zip","WA.zip","QLD.zip","SA.zip","VIC.zip","NSW.zip"]
+nShow = 21 # includes header
+inCSVs = ["NT.zip","ACT.zip","TAS.zip","WA.zip","QLD.zip","SA.zip","VIC.zip","NSW.zip"]
 topTen = []
-sumName = 'top%d_table.tab' % nShow
-sumFiddledName = 'Fiddled_top%d_table.tab' % nShow
+sumName = 'top%d_table.tab' % (nShow-1)
+sumFiddledName = 'Fiddled_top%d_table.tab' % (nShow-1)
 errName = 'plausible_errors.txt'
+htmlName = 'index.html'
 
 try:
     os.remove(sumName)
@@ -115,7 +119,39 @@ try:
     os.remove(errName)
 except:
     pass
+try:
+    os.remove(htmlName)
+except:
+    pass
 
+# make a very long list of box column labels
+boxlabs = [chr(x+ord('A')) for x in range(26)]
+for i in range(20):
+    pre = boxlabs[i]
+    boxlabs += [''.join([pre,chr(x+ord('A'))]) for x in range(26)]
+
+def makeTable(df,state):
+    """ split into letter headed boxes table
+    """
+    df2 = pd.DataFrame()
+    prefs = [x.split(',') for x in list(df.index.values)]
+    counts = list(df['Count'])
+    nr,nc = df.shape
+    sl = [state]*nr
+    datdic = {'State':sl}
+    bl = boxlabs[:nc]
+    for i in range(nc): # for each column
+        c = [prefs[x][i] for x in range(nr)]
+        datdic[bl[i]] = c
+    datdic['Counts'] = counts
+    df2 = pd.DataFrame(datdic)
+    newi = list(range(1,nr))
+    df2 = df2.reindex(newi)
+    h2 = df2.to_html()
+    h = ''.join(h2)
+    return (h)
+    
+    
    
 def reportDistances(df,datname):
     """
@@ -150,23 +186,26 @@ def reportDistances(df,datname):
             if len(diffs) == 1:
                mergeUs = True
                report.append('### %s Hamming=1 difference at position %d\n #%d = %s (n=%d)\n #%d = %s (n=%d)' % (datname,diffs[0],i,s,ns,j,s2,ns2))
-            if len(diffs) == 2: # may be transposition between neighboring boxes?
-                p,q = diffs     # box zero based indices
+            elif len(diffs) == 2: # may be transposition between neighboring boxes?
+                p,q = diffs     # zero based indices -> box order values
                 if (abs(p - q) == 1 and ss[p] == s2s[q] and ss[q] == s2s[p]): # matching neighbors
                     mergeUs = True
                     report.append('### %s Transposition of positions %d and %d\n #%d = %s (n=%d)\n #%d = %s (n=%d)' % (datname,p,q,i,s,ns,j,s2,ns2))
                     if (ss[p] == '1' or ss[q] == '1'):
                         report.append('!!! %s ABOVE TRANSPOSITION likely a REAL DIFFERENCE - primary vote changed - NOT merged')
                         mergeUs = False
+                        
             if mergeUs: # hypothetical merge of commonest preference patterns where possible simian error
                 ns += ns2 # update local count in case multiples
                 dft.iloc[i][0] = ns # merge
                 killMe.append(s2) # index to remove 
     if len(killMe) > 0:
         dft = dft.drop(killMe)
+    print('### killMe=',killMe)
     return(report,dft)
         
 
+htmlrep = '<!DOCTYPE html>\n<html lang="en"><head></head><body>\n'
 for fnum,fn in enumerate(inCSVs):
     fpath = '%s%s' % (FDIR,fn)
     dat = pd.read_csv(fpath, quotechar='"',skiprows=[1,],compression='infer')
@@ -208,11 +247,18 @@ for fnum,fn in enumerate(inCSVs):
         f.close()
     else:
         print('No hamming distance = 1 or transposed pairs found\n')
-    
     vchead['State'] = datname
+    htmlrep += '<H1>%s</h1>\n' % ('Top %d counts' % (nShow-1))
+    htmlrep += makeTable(vchead,datname)
     vchead.to_csv(sumName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
     print(vchead)
     vcht['State'] = datname
+    htmlrep += '<H1>%s</h1>\n' % ('Amalgamated counts after ignoring small errors')
+    htmlrep += makeTable(vcht,datname)
     vcht.to_csv(sumFiddledName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
     print('### After amalgamating likely error categories:')
     print(vcht)
+htmlrep += '</body></html>\n'
+rep = open(htmlName,'w')
+rep.write(htmlrep)
+rep.close()
