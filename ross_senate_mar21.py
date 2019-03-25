@@ -8,6 +8,12 @@ How to votes cards are at <a href="https://www.abc.net.au/news/federal-election-
 # Requires about 5GB ram and 26 minutes to run over all the data on my ancient server.
 # History:
 #
+# march 26
+#  added percentage of all ballots to count tables
+#
+# march 25
+# pdfs now work
+#
 # march 24
 #   added index.html report summary of top counts before and after amalgamation of errors
 #
@@ -106,6 +112,7 @@ def makeTable(df,state):
     df2 = pd.DataFrame()
     prefs = [x.split(',') for x in list(df.index.values)]
     counts = list(df['Count'])
+    props = list(df['Prop'])
     nr = df.shape[0]
     nc = len(prefs[0])
     sl = [state]*nr
@@ -117,6 +124,7 @@ def makeTable(df,state):
         csums.append(sum(c)) # if zero, useless..
         datdic[bl[i]] = c     
     datdic['Counts'] = counts
+    datdic['Prop'] = props
     df2 = pd.DataFrame(datdic)
     newi = list(range(1,nr))
     df2 = df2.reindex(newi)
@@ -147,14 +155,16 @@ def reportDistances(df,datname):
     dft = df.copy()
     report = []
     killMe = []
-    for i,s in enumerate(list(dft.index.values)):
+    indices = list(dft.index.values)
+    nr = dft.shape[0]
+    for i,s in enumerate(indices):
         ss = s.split(',')
-        ns = dft.iloc[i][0]    # use that index 0 to remove pandas series wrapper
-        for j in range(i,(dft.shape[0]-1)):
-            s2 = dft.index.values[j]
-            ns2 = dft.iloc[j][0] # count
+        ns = dft.loc[s,'Count']    
+        for j in range(i,(nr-1)):
+            s2 = indices[j]
+            ns2 = dft.loc[s2,'Count'] 
             s2s = s2.split(',')
-            diffs = [i for i,x in enumerate(ss) if (s2s[i] != x)]
+            diffs = [y for y,x in enumerate(ss) if (s2s[y] != x)]
             mergeUs = False
             if len(diffs) == 1:
                p = diffs[0]
@@ -174,7 +184,7 @@ def reportDistances(df,datname):
                         
             if mergeUs: # hypothetical merge of commonest preference patterns where possible simian error
                 ns += ns2 # update local count in case multiples
-                dft.iloc[i][0] = ns # merge
+                dft.at[s,'Count'] = ns # merge
                 killMe.append(s2) # index to remove 
     if len(killMe) > 0:
         dft = dft.drop(killMe)
@@ -220,6 +230,11 @@ for fnum,fn in enumerate(inCSVs):
     sdat = dat.drop(columns=['Preferences'])
     vc = sdat['spref'].value_counts().to_frame()
     vc.columns = ["Count"]
+    counts = list(vc.loc[:,'Count'])
+    tot = sum(counts)
+    freqs = ['%2.2f%%' % ((x/tot)*100.0) for x in counts]
+    vc['Prop'] = freqs
+    print('###vc',vc)
     vchead = vc.head(n=nShow).copy()
     (rep,vcht) = reportDistances(vchead,datname)
     if len(rep) > 0:
@@ -231,6 +246,7 @@ for fnum,fn in enumerate(inCSVs):
     else:
         print('No hamming distance = 1 or transposed pairs found\n')
     vchead['State'] = datname
+
     htmlrep += '<h2>%s</h2><br>\n' % ('Top %d counts' % (nShow-1))
     htvlink = 'https://www.abc.net.au/news/federal-election-2016/guide/s%s/htv/' % datname.lower()
     htmlrep += '<a href="%s" target="_blank">How to vote cards - click here</a><br>' % htvlink
