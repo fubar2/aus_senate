@@ -105,16 +105,18 @@ import pandas as pd
 import weasyprint
 
 QUICK = False
-
 FDIR = '/home/ross/Downloads/aec-senate-formalpreferences-20499-'
 META = '2016 Australian senate preference data processed using code at https://github.com/fubar2/aus_senate'
-STYL = '<style>@page: {size: "36 in 36 in";}</style>'
+STYL = """<style type="text/css">
+            tr:nth-child(even) { background-color: lightblue; }
+            tr:nth-child(odd) { background-color: lightyellow; }
+        </style>"""
 pd.set_option('display.max_colwidth',256) # to prevent truncation
 pd.set_option('display.width', 256)
 
 
 nShow = 21 # includes header
-inCSVs = ["NT.zip","ACT.zip","TAS.zip","WA.zip","QLD.zip","SA.zip","VIC.zip","NSW.zip"]
+inCSVs = ["NSW.zip","VIC.zip","WA.zip","QLD.zip","SA.zip","ACT.zip","TAS.zip","NT.zip"]
 if QUICK:
     inCSVs = ["NT.zip","ACT.zip"]
 topTen = []
@@ -122,24 +124,13 @@ sumName = 'top%d_table.tab' % (nShow-1)
 sumFiddledName = 'amalgamated_top%d_table.tab' % (nShow-1)
 errName = 'plausible_errors.txt'
 htmlName = 'index.html'
-
-try:
-    os.remove(sumName)
-except:
-    pass
-try:
-    os.remove(sumFiddledName)
-except:
-    pass
-try:
-    os.remove(errName)
-except:
-    pass
-try:
-    os.remove(htmlName)
-except:
-    pass
-
+outPDF = 'common_ballots_senate_2016.pdf'
+for fname in [sumName,sumFiddledName,outPDF,errName,htmlName]:
+    try:
+        os.remove(fname)
+    except:
+        pass
+  
 # make a very long list of box column labels
 boxlabs = [chr(x+ord('A')) for x in range(26)]
 for i in range(20):
@@ -149,6 +140,8 @@ for i in range(20):
 def makeTable(df,state):
     """ split into letter headed boxes table
     """
+    pd_props = [
+    ('size', '50in 30in')] 
     th_props = [
       ('font-size', '15px'),
       ('text-align', 'center'),
@@ -162,10 +155,11 @@ def makeTable(df,state):
       ('font-size', '12px')
       ]
 
-    # Set table styles
+    # Set table styles       
     styles = [
-      dict(selector="th", props=th_props),
-      dict(selector="td", props=td_props)
+      {"selector":"@page","props":pd_props},
+      {"selector":"th", "props":th_props},
+      {"selector":"td", "props":td_props}
       ]
 
     df2 = pd.DataFrame()
@@ -176,15 +170,29 @@ def makeTable(df,state):
     sl = [state]*nr
     datdic = {'State':sl}
     bl = boxlabs[:nc]
+    csums = []
     for i in range(nc): # for each column
-        c = [prefs[x][i] for x in range(nr)]
-        datdic[bl[i]] = c
+        c = [int(prefs[x][i]) for x in range(nr)]
+        csums.append(sum(c)) # if zero, useless..
+        datdic[bl[i]] = c     
     datdic['Counts'] = counts
     df2 = pd.DataFrame(datdic)
+    # coli = list(range(nc))
+    # coli.sort(reverse=True)
+    # lastzero = 0
+    # for i in coli:
+        # if csums[i] == 0:
+            # lastzero = i
+            # continue
+        # else:
+            # break
+    # if (lastzero < nc):
+        # ctd = list(range(lastzero,nc))
+        # df2.drop(df2.columns[ctd],axis=1,inplace=True) 
+        # print('#### Dropped',lastzero,'to',nc)
     newi = list(range(1,nr))
     df2 = df2.reindex(newi)
-    (df2.style.set_table_styles(styles))
-    h2 = df2.to_html()
+    h2 = df2.style.set_table_styles(styles).render()   # ??? h2 = df2.to_html()
     h = ''.join(h2)
     return (h)
     
@@ -238,11 +246,12 @@ def reportDistances(df,datname):
                 killMe.append(s2) # index to remove 
     if len(killMe) > 0:
         dft = dft.drop(killMe)
-    print('### killMe=',killMe)
     return(report,dft)
         
 
-htmlrep = '''<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8"><meta info="%s">%s</head><body>\n''' % (META,STYL)
+htmlrep = '''<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8">
+<meta info="%s">%s</head>
+<body>''' % (META,STYL) 
 htmlrep += '<br>\n'.join(rationale.split('\n'))
 htmlrep += '''<br><b>Below are the top 20 preference choice patterns<br>before and after amalgamation of patterns<br>
 differing only by one box's value or a simple transposition between neighboring boxes not involving the primary vote:</b><br>\n'''
@@ -288,26 +297,27 @@ for fnum,fn in enumerate(inCSVs):
     else:
         print('No hamming distance = 1 or transposed pairs found\n')
     vchead['State'] = datname
-    htmlrep += '<H1>%s</h1><br>\n' % ('Top %d counts' % (nShow-1))
+    htmlrep += '<h2>%s</h2><br>\n' % ('Top %d counts' % (nShow-1))
     htvlink = 'https://www.abc.net.au/news/federal-election-2016/guide/s%s/htv/' % datname.lower()
     htmlrep += '<a href="%s" target="_blank">How to vote cards - click here</a><br>' % htvlink
     htmlrep += makeTable(vchead,datname)
     vchead.to_csv(sumName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
     print(vchead)
     vcht['State'] = datname
-    if vcht.shape[0] < vchead.shape[0]:
-        htmlrep += '<H1>%s</h1>\n' % ('Amalgamated counts after ignoring small errors')
+    if (vcht.shape[0] != vchead.shape[0]):
+        htmlrep += '<h2>%s</h2>\n' % ('Amalgamated counts after ignoring small errors')
         htmlrep += makeTable(vcht,datname)
         vcht.to_csv(sumFiddledName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
         print('### After amalgamating likely error categories:')
         print(vcht)
     else:
-        htmlrep += '<H1>%s</h1>\n' % ('### No simple errors to amalgamate were found')
-htmlrep += '%s<br></body></html>\n' % META
+        htmlrep += '<h2>%s</h2>\n' % ('### No simple errors to amalgamate were found')
+htmlrep += '<i>%s</i><br></body></html>\n' % META
 rep = open(htmlName,'w')
 rep.write(htmlrep)
 rep.close()
 # Convert the html file to a pdf file using weasyprint
-out_pdf= 'common_ballots_senate_2016.pdf'
-weasyprint.HTML(htmlName).write_pdf(out_pdf)
-
+ss = [weasyprint.CSS(string='@page { size: 60in 30in } '),
+ weasyprint.CSS(string="tr:nth-child(even) { background-color: lightblue; }"),
+ weasyprint.CSS(string= "tr:nth-child(odd) { background-color: lightyellow; }")]
+weasyprint.HTML(htmlName).write_pdf(outPDF,stylesheets=ss)
