@@ -13,6 +13,11 @@ on my ancient home linux server. I have no need to make it go faster...send code
 
 *Inspired by* https://github.com/tmccarthy/ausvotes
 
+**History**
+
+25 March
+60" wide pdf generator added. weasyprint is great now that I understand how to load CSS for rendering to pdf...
+
 24 March
 Useable HTML report generator
 
