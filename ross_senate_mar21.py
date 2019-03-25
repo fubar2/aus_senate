@@ -43,7 +43,7 @@ import string
 import pandas as pd
 import weasyprint
 
-QUICK = True
+QUICK = False
 FDIR = '/home/ross/Downloads/aec-senate-formalpreferences-20499-'
 META = '2016 Australian senate preference data processed using code at https://github.com/fubar2/aus_senate'
 STYL = """<style type="text/css">
