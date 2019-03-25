@@ -1,12 +1,11 @@
 rationale = """Inspired by <a href="https://github.com/tmccarthy/ausvotes">https://github.com/tmccarthy/ausvotes</a><br>
 ross lazarus me fecit 21 march 2018<br>
-This brutal and fugly code was quickly hacked without regard for aesthetics. So bite me. Or send code<br>
-Requires about 5GB ram and 26 minutes to run over all the data on my ancient server.<br>
 Code at <a href="https://github.com/fubar2/aus_senate">https://github.com/fubar2/aus_senate</a><br>
 Comments and contributions welcomed there<br>
 How to votes cards are at <a href="https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/">https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/</a>
 """
-#
+# This brutal and fugly code was quickly hacked without regard for aesthetics. So bite me. Or send code
+# Requires about 5GB ram and 26 minutes to run over all the data on my ancient server.
 # History:
 #
 # march 24
@@ -44,7 +43,7 @@ import string
 import pandas as pd
 import weasyprint
 
-QUICK = False
+QUICK = True
 FDIR = '/home/ross/Downloads/aec-senate-formalpreferences-20499-'
 META = '2016 Australian senate preference data processed using code at https://github.com/fubar2/aus_senate'
 STYL = """<style type="text/css">
@@ -192,9 +191,9 @@ for fnum,fn in enumerate(inCSVs):
     datname = datnames.split('.zip')[0]
     htmlrep = '''<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8">
     <meta info="%s">%s</head>
-    <body>%s<br><b>Top 20 preference choice patterns<br>before and after amalgamation of patterns
+    <body><b>Top 20 preference choice patterns<br>before and after amalgamation of patterns
     differing only by one box's value or a simple transposition between neighboring boxes not involving the primary vote
-    for %s:</b><br>\n''' % (META,STYL,datname,rationale)
+    for %s:</b><br>\n''' % (META,STYL,datname)
     sp = dat['Preferences'].copy()
     for i in range(len(sp)):
         ss = sp.iloc[i]
@@ -247,7 +246,7 @@ for fnum,fn in enumerate(inCSVs):
         print(vcht)
     else:
         htmlrep += '<h2>%s</h2>\n' % ('### No arguably "small" differences to amalgamate were found')
-    htmlrep += '<i>%s</i><br></body></html>\n' % META
+    htmlrep += '<footer>%s</footer></body></html>\n' % (rationale)
     rep = open(htmlName % ((nShow-1),datname),'w')
     rep.write(htmlrep)
     rep.close()
