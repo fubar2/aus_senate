@@ -1,9 +1,10 @@
 rationale = """Inspired by <a href="https://github.com/tmccarthy/ausvotes">https://github.com/tmccarthy/ausvotes</a><br>
 ross lazarus me fecit 21 march 2018<br>
+This brutal and fugly code was quickly hacked without regard for aesthetics. So bite me. Or send code<br>
 Requires about 5GB ram and 26 minutes to run over all the data on my ancient server.<br>
 Code at <a href="https://github.com/fubar2/aus_senate">https://github.com/fubar2/aus_senate</a><br>
 Comments and contributions welcomed there<br>
-How to votes at <a href="https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/">https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/</a>
+How to votes cards are at <a href="https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/">https://www.abc.net.au/news/federal-election-2016/guide/snt/htv/</a>
 """
 #
 # History:
@@ -52,6 +53,29 @@ STYL = """<style type="text/css">
         </style>"""
 pd.set_option('display.max_colwidth',256) # to prevent truncation
 pd.set_option('display.width', 256)
+pd_props = [
+('size', '50in 30in')] 
+th_props = [
+  ('font-size', '14px'),
+  ('text-align', 'center'),
+  ('font-weight', 'bold'),
+  ('color', '#6d6d6d'),
+  ('background-color', '#f7f7f9')
+  ]
+
+# Set CSS properties for td elements in dataframe
+td_props = [
+  ('font-size', '12px'),
+  ('text-align', 'center'),
+  ]
+
+# prepare table styles for render call
+ # {"selector":"@page","props":pd_props},
+
+ourStyles = [
+  {"selector":"th", "props":th_props},
+  {"selector":"td", "props":td_props}
+  ]
 
 
 nShow = 21 # includes header
@@ -66,11 +90,12 @@ htmlName = 'reports/top_%d_%s.html'
 outPDF = 'reports/common_ballots_senate_2016_top%d_%s.pdf'
 
 for fn in [sumName,sumFiddledName,errName]:
+    # these are appended to for each iteration
     try:
         os.remove(fn)
     except:
         pass
-# make a very long list of box column labels
+# precompute a very long list of box column labels
 boxlabs = [chr(x+ord('A')) for x in range(26)]
 for i in range(20):
     pre = boxlabs[i]
@@ -79,28 +104,6 @@ for i in range(20):
 def makeTable(df,state):
     """ split into letter headed boxes table
     """
-    pd_props = [
-    ('size', '50in 30in')] 
-    th_props = [
-      ('font-size', '15px'),
-      ('text-align', 'center'),
-      ('font-weight', 'bold'),
-      ('color', '#6d6d6d'),
-      ('background-color', '#f7f7f9')
-      ]
-
-    # Set CSS properties for td elements in dataframe
-    td_props = [
-      ('font-size', '12px')
-      ]
-
-    # Set table styles       
-    styles = [
-      {"selector":"@page","props":pd_props},
-      {"selector":"th", "props":th_props},
-      {"selector":"td", "props":td_props}
-      ]
-
     df2 = pd.DataFrame()
     prefs = [x.split(',') for x in list(df.index.values)]
     counts = list(df['Count'])
@@ -118,7 +121,7 @@ def makeTable(df,state):
     df2 = pd.DataFrame(datdic)
     newi = list(range(1,nr))
     df2 = df2.reindex(newi)
-    h2 = df2.style.set_table_styles(styles).render()   
+    h2 = df2.style.set_table_styles(ourStyles).render()   
     h = ''.join(h2)
     return (h)
     
@@ -237,19 +240,19 @@ for fnum,fn in enumerate(inCSVs):
     print(vchead)
     vcht['State'] = datname
     if (vcht.shape[0] != vchead.shape[0]):
-        htmlrep += '<h2>%s</h2>\n' % ('Amalgamated counts after ignoring small errors')
+        htmlrep += '<h2>%s</h2>\n' % ('Amalgamated counts after ignoring arguably "small" differences')
         htmlrep += makeTable(vcht,datname)
         vcht.to_csv(sumFiddledName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
         print('### After amalgamating likely error categories:')
         print(vcht)
     else:
-        htmlrep += '<h2>%s</h2>\n' % ('### No simple errors to amalgamate were found')
+        htmlrep += '<h2>%s</h2>\n' % ('### No arguably "small" differences to amalgamate were found')
     htmlrep += '<i>%s</i><br></body></html>\n' % META
     rep = open(htmlName % ((nShow-1),datname),'w')
     rep.write(htmlrep)
     rep.close()
     # Convert the html file to a pdf file using weasyprint
     ss = [weasyprint.CSS(string='@page { size: %din 10in } ' % sizedict[datname]),
-     weasyprint.CSS(string="tr:nth-child(even) { background-color: lightblue; }"),
-     weasyprint.CSS(string= "tr:nth-child(odd) { background-color: lightyellow; }")]
+         weasyprint.CSS(string="tr:nth-child(even) { background-color: lightblue; }"),
+         weasyprint.CSS(string= "tr:nth-child(odd) { background-color: lightyellow; }")]
     weasyprint.HTML(htmlName % ((nShow-1),datname)).write_pdf(outPDF % ((nShow-1),datname),stylesheets=ss)
