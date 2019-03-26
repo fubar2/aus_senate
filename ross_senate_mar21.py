@@ -194,7 +194,7 @@ def reportDistances(df,datname):
 
 for fnum,fn in enumerate(inCSVs):
     # NSW pdf needs 60" vic/qld/wa 55" sa 35" a4 landscape the rest 
-    sizedict = {'NSW':60,'VIC':55,'QLD':55,'WA':55,'SA':36,'NT':10,'ACT':10,'TAS':20}
+    sizedict = {'NSW':60,'VIC':45,'QLD':50,'WA':35,'SA':25,'NT':10,'ACT':10,'TAS':25}
     fpath = '%s%s' % (FDIR,fn)
     dat = pd.read_csv(fpath, quotechar='"',skiprows=[1,],compression='infer')
     datnames=fn.split('-')[-1] # last part
@@ -255,13 +255,13 @@ for fnum,fn in enumerate(inCSVs):
     print(vchead)
     vcht['State'] = datname
     if (vcht.shape[0] != vchead.shape[0]):
-        htmlrep += '<h2>%s</h2>\n' % ('Amalgamated counts after ignoring arguably "small" differences')
+        htmlrep += '<h2>Amalgamated counts after ignoring arguably "small" differences</h2>\n'
         htmlrep += makeTable(vcht,datname)
         vcht.to_csv(sumFiddledName,sep='\t',index_label='Preferences',mode='a',header=(fnum==0))
         print('### After amalgamating likely error categories:')
         print(vcht)
     else:
-        htmlrep += '<h2>%s</h2>\n' % ('### No arguably "small" differences to amalgamate were found')
+        htmlrep += '<h2>### No arguably "small" differences to amalgamate were found</h2>\n'
     htmlrep += '<footer>%s</footer></body></html>\n' % (rationale)
     rep = open(htmlName % ((nShow-1),datname),'w')
     rep.write(htmlrep)
