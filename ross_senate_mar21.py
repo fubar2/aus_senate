@@ -234,7 +234,6 @@ for fnum,fn in enumerate(inCSVs):
     tot = sum(counts)
     freqs = ['%2.2f%%' % ((x/tot)*100.0) for x in counts]
     vc['Prop'] = freqs
-    print('###vc',vc)
     vchead = vc.head(n=nShow).copy()
     (rep,vcht) = reportDistances(vchead,datname)
     if len(rep) > 0:
