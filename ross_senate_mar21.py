@@ -49,7 +49,7 @@ import string
 import pandas as pd
 import weasyprint
 
-QUICK = False
+QUICK = 0
 FDIR = '/home/ross/Downloads/aec-senate-formalpreferences-20499-'
 META = '2016 Australian senate preference data processed using code at https://github.com/fubar2/aus_senate'
 STYL = """<style type="text/css">
@@ -232,9 +232,8 @@ for fnum,fn in enumerate(inCSVs):
     vc.columns = ["Count"]
     counts = list(vc.loc[:,'Count'])
     tot = sum(counts)
-    freqs = ['%2.2f%%' % ((x/tot)*100.0) for x in counts]
+    freqs = ['%2.2f%%' % (100.0*x/tot) for x in counts]
     vc['Prop'] = freqs
-    print('###vc',vc)
     vchead = vc.head(n=nShow).copy()
     (rep,vcht) = reportDistances(vchead,datname)
     if len(rep) > 0:
@@ -248,6 +247,8 @@ for fnum,fn in enumerate(inCSVs):
     vchead['State'] = datname
 
     htmlrep += '<h2>%s</h2><br>\n' % ('Top %d counts' % (nShow-1))
+    nr,nc = dat.shape
+    htmlrep += '### File %s has %d rows and %d columns<br>' % (fpath,nr,nc)
     htvlink = 'https://www.abc.net.au/news/federal-election-2016/guide/s%s/htv/' % datname.lower()
     htmlrep += '<a href="%s" target="_blank">How to vote cards - click here</a><br>' % htvlink
     htmlrep += makeTable(vchead,datname)
